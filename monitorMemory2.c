@@ -122,6 +122,10 @@ int watchpoint(void *addr, signal_handler_t handler)
          }
 
          // sleep(1);
+          /*
+           所以串起来就是，父进程对子进程ptrace_attach时，陷入内核态，设置了子进程为traced状态，同时发送sigstop信号，而且会唤醒子进程，
+           子进程被唤醒后，由于状态为traced,所以do_signal里会给父进程发送sigchld信号，之后父进程waitpid就返回了，继续往下
+          */
          waitpid(parent,NULL,0);
 
          if (ptrace(PTRACE_POKEUSER, parent, offsetof(struct user, u_debugreg[0]), addr))
